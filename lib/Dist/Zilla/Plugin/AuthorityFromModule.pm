@@ -1,8 +1,8 @@
 use strict;
 use warnings;
 package Dist::Zilla::Plugin::AuthorityFromModule;
-# git description: 0a6433e
-$Dist::Zilla::Plugin::AuthorityFromModule::VERSION = '0.001';
+# git description: v0.001-9-g4b2dcc6
+$Dist::Zilla::Plugin::AuthorityFromModule::VERSION = '0.002';
 # ABSTRACT: Add metadata to your distribution indicating what module to copy PAUSE permissions from
 # KEYWORDS: distribution metadata authority permissions PAUSE users
 # vim: set ts=8 sw=4 tw=78 et :
@@ -11,7 +11,7 @@ use Moose;
 with 'Dist::Zilla::Role::MetaProvider';
 use Moose::Util::TypeConstraints 'role_type';
 use List::Util 'first';
-use Module::Metadata;
+use Module::Metadata 1.000005;
 use namespace::autoclean;
 
 has module => (
@@ -24,19 +24,26 @@ has _module_name => (
     default => sub {
         my $self = shift;
 
-        my $file;
         if (my $module = $self->module)
         {
-            $file = first { $self->_package_from_file($_) eq $module } @{ $self->zilla->files };
-        }
-        else
-        {
-            $self->log_debug('no module provided; defaulting to the main module');
-            $file = $self->zilla->main_module;
+            if (my $file = first {
+                    $_->name =~ m{^lib/} and $_->name =~ m{\.pm$}
+                    and $self->_package_from_file($_) eq $module }
+                @{ $self->zilla->files })
+            {
+                $self->log_debug('found \'' . $module . '\' in ' . $file->name);
+                return $module;
+            }
+
+            $self->log_fatal('the module \'' . $module . '\' cannot be found in the distribution');
         }
 
-        $self->log_debug('extracting the package name from ' . $file->name);
-        $self->_package_from_file($file);
+        $self->log_debug('no module provided; defaulting to the main module');
+
+        my $file = $self->zilla->main_module;
+        my $module = $self->_package_from_file($file);
+        $self->log_debug('extracted package \'' . $module . '\' from ' . $file->name);
+        $module;
     },
 );
 
@@ -77,7 +84,7 @@ sub _package_from_file
             or $self->log_fatal('cannot open handle to ' . $file->name . ' content: ' . $!);
 
     my $mmd = Module::Metadata->new_from_handle($fh, $file->name);
-    ($mmd->packages_inside)[0];
+    first { $_ ne 'main' } $mmd->packages_inside;
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -94,7 +101,7 @@ Dist::Zilla::Plugin::AuthorityFromModule - Add metadata to your distribution ind
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 SYNOPSIS
 
@@ -106,22 +113,67 @@ In your F<dist.ini>:
 
 This is a L<Dist::Zilla> plugin that adds the C<x_authority_from_module> and
 C<x_permissions_from_module> keys to your distribution metadata, indicating
-from which module to copy PAUSE permissions when a module in your distribution
-enters the PAUSE index that has not ever previously been indexed.
+from which module to copy L<PAUSE|http://pause.perl.org> permissions when a
+module in your distribution enters the L<PAUSE|http://pause.perl.org> index
+that has not ever previously been indexed.
 
-Note that these fields aren't actually supported yet by PAUSE - that's still
-to come (as is figuring out which field name everyone prefers, and ditching
-the other one).
+Note that these fields aren't actually supported yet by
+L<PAUSE|http://pause.perl.org> -- that's still to come (as is figuring out
+which field name everyone prefers, and ditching the other one).
+
+=head1 MOTIVATION
+
+The idea is that this is a more useful piece of data for
+L<PAUSE|http://pause.perl.org> than C<x_authority>.  Here is how the release
+process works with C<x_authority>, using L<Moose> as an example:
+
+=for stopwords STEVAN maint
+
+=over 4
+
+=item *
+
+I (ETHER) release a new version of L<Moose> with a new module added, C<Moose::Foo>
+
+=item *
+
+normally, L<PAUSE|http://pause.perl.org> would give me "first-come" permissions on this module, but since L<PAUSE|http://pause.perl.org> sees the C<< x_authority => 'cpan:STEVAN' >> metadata, it instead gives "first-come" to STEVAN, and "co-maint" to me
+
+=item *
+
+but now none of the other members of the Moose cabal can do the next Moose release and get the new version of C<Moose::Foo> indexed - they need to contact STEVAN and ask him to give them co-maint at L<http://pause.perl.org>
+
+=back
+
+So, we can see the only gain is that STEVAN automatically gets permission on
+the new module, but still, no one else does.  Now, let's look at how
+C<x_authority_from_module> would work:
+
+=over 4
+
+=item *
+
+I (ETHER) release a new version of L<Moose> with a new module added, C<Moose::Foo>
+
+=item *
+
+L<PAUSE|http://pause.perl.org> sees the C<< x_authority_from_module => 'Moose' >> metadata and looks up the permissions for the L<Moose> module, and, L<finding many authors|https://pause.perl.org/pause/authenquery?pause99_peek_perms_by=me&pause99_peek_perms_query=Moose&pause99_peek_perms_sub=Submit>, copies all those permissions to L<Moose::Foo>: STEVAN gets first-come, and everyone else (ETHER included) gets co-maint.
+
+=item *
+
+now any of the other members of the Moose cabal can do the next Moose release and everything will be properly indexed, with no manual intervention required.
+
+=back
 
 =head1 CONFIGURATION OPTIONS
 
 =head2 C<module>
 
 The module name to copy permissions from. It must exist in the distribution,
-and exist in the PAUSE permissions table (see
+and exist in the L<PAUSE|http://pause.perl.org> permissions table (see
 L<peek at PAUSE permissions|https://pause.perl.org/pause/authenquery?ACTION=peek_perms>).
 
-This config is optional; it defaults to the L<main module|Dist::Zilla/main module> in the distribution.
+This config is optional; it defaults to the L<main module|Dist::Zilla/main_module> in the distribution.
 
 =for Pod::Coverage metadata
 

@@ -21,8 +21,8 @@ my $tzil = Builder->from_config(
                 [ MetaConfig => ],
                 [ 'AuthorityFromModule' => ],
             ),
-            path(qw(source lib Foo.pm)) => "package Foo;\n1;\n",
-            path(qw(source lib Foo Bar.pm)) => "package Foo::Bar;\n1;\n",
+            path(qw(source lib Foo.pm)) => "use strict;\npackage Foo;\n1;\n",
+            path(qw(source lib Foo Bar.pm)) => "use strict;\npackage Foo::Bar;\n1;\n",
         },
     },
 );
@@ -59,7 +59,10 @@ cmp_deeply(
 
 cmp_deeply(
     $tzil->log_messages,
-    superbagof('[AuthorityFromModule] no module provided; defaulting to the main module'),
+    superbagof(
+        '[AuthorityFromModule] no module provided; defaulting to the main module',
+        '[AuthorityFromModule] extracted package \'Foo\' from lib/Foo.pm',
+    ),
     'logged a diagnostic message about defaulting the module name',
 );
 

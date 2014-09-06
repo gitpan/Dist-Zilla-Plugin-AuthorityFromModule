@@ -35,12 +35,12 @@ no_index:
 provides:
   Dist::Zilla::Plugin::AuthorityFromModule:
     file: lib/Dist/Zilla/Plugin/AuthorityFromModule.pm
-    version: '0.001'
+    version: '0.002'
 requires:
   Dist::Zilla::Plugin::MetaResources: '4.300039'
   Dist::Zilla::Role::MetaProvider: '0'
   List::Util: '0'
-  Module::Metadata: '0'
+  Module::Metadata: '1.000005'
   Moose: '0'
   Moose::Util::TypeConstraints: '0'
   namespace::autoclean: '0'
@@ -53,7 +53,7 @@ resources:
   bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=Dist-Zilla-Plugin-AuthorityFromModule
   homepage: https://github.com/karenetheridge/Dist-Zilla-Plugin-AuthorityFromModule
   repository: https://github.com/karenetheridge/Dist-Zilla-Plugin-AuthorityFromModule.git
-version: '0.001'
+version: '0.002'
 x_Dist_Zilla:
   perl:
     version: '5.021003'
@@ -63,18 +63,11 @@ x_Dist_Zilla:
       config:
         Dist::Zilla::Role::Bootstrap:
           distname: Dist-Zilla-Plugin-AuthorityFromModule
-          fallback: '1'
-          try_built: ~
+          fallback: '0'
+          try_built: '1'
           try_built_method: mtime
       name: Bootstrap::lib
-      version: '1.000005'
-    -
-      class: Dist::Zilla::Plugin::AuthorityFromModule
-      config:
-        Dist::Zilla::Plugin::AuthorityFromModule:
-          module: main
-      name: AuthorityFromModule
-      version: ~
+      version: '1.001000'
     -
       class: Dist::Zilla::Plugin::Prereqs
       config:
@@ -265,6 +258,13 @@ x_Dist_Zilla:
       name: '@Author::ETHER/PkgVersion'
       version: '5.020'
     -
+      class: Dist::Zilla::Plugin::AuthorityFromModule
+      config:
+        Dist::Zilla::Plugin::AuthorityFromModule:
+          module: Dist::Zilla::Plugin::AuthorityFromModule
+      name: '@Author::ETHER/AuthorityFromModule'
+      version: '0.002'
+    -
       class: Dist::Zilla::Plugin::Authority
       name: '@Author::ETHER/Authority'
       version: '1.006'
@@ -357,7 +357,7 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::ReadmeAnyFromPod
       name: '@Author::ETHER/ReadmeAnyFromPod'
-      version: '0.142250'
+      version: '0.142470'
     -
       class: Dist::Zilla::Plugin::GithubMeta
       name: '@Author::ETHER/GithubMeta'
@@ -386,7 +386,7 @@ x_Dist_Zilla:
           inherit_version: '1'
           meta_noindex: '1'
       name: '@Author::ETHER/MetaProvides::Package'
-      version: '2.001000'
+      version: '2.001002'
     -
       class: Dist::Zilla::Plugin::MetaConfig
       name: '@Author::ETHER/MetaConfig'
@@ -444,10 +444,26 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::ModuleBuildTiny::Fallback
       config:
+        Dist::Zilla::Plugin::ModuleBuildTiny::Fallback:
+          plugins:
+            -
+              class: Dist::Zilla::Plugin::ModuleBuild
+              config:
+                Dist::Zilla::Role::TestRunner:
+                  default_jobs: 1
+              name: ModuleBuildTiny::Fallback
+              version: '5.020'
+            -
+              class: Dist::Zilla::Plugin::ModuleBuildTiny
+              config:
+                Dist::Zilla::Role::TestRunner:
+                  default_jobs: 1
+              name: ModuleBuildTiny::Fallback
+              version: '0.007'
         Dist::Zilla::Role::TestRunner:
           default_jobs: 9
       name: '@Author::ETHER/ModuleBuildTiny::Fallback'
-      version: '0.005'
+      version: '0.006'
     -
       class: Dist::Zilla::Plugin::InstallGuide
       name: '@Author::ETHER/InstallGuide'
@@ -578,7 +594,7 @@ x_Dist_Zilla:
         Dist::Zilla::Plugin::Git::Tag:
           branch: ~
           signed: 0
-          tag: v0.001
+          tag: v0.002
           tag_format: v%v%t
           tag_message: v%v%t
           time_zone: local
@@ -636,10 +652,10 @@ x_Dist_Zilla:
       class: Dist::Zilla::Plugin::Test::CleanNamespaces
       config:
         Dist::Zilla::Plugin::Test::CleanNamespaces:
-          filename: xt/release/clean-namespaces.t
+          filename: xt/author/clean-namespaces.t
           skips: []
       name: Test::CleanNamespaces
-      version: '0.005'
+      version: '0.006'
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':InstallModules'
@@ -682,5 +698,5 @@ x_Dist_Zilla:
       is_trial: '0'
     version: '5.020'
 x_authority: cpan:ETHER
-x_authority_from_module: main
-x_permissions_from_module: main
+x_authority_from_module: Dist::Zilla::Plugin::AuthorityFromModule
+x_permissions_from_module: Dist::Zilla::Plugin::AuthorityFromModule

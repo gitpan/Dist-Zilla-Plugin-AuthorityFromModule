@@ -82,7 +82,7 @@ my %WriteMakefileArgs = (
     "Dist::Zilla::Plugin::MetaResources" => "4.300039",
     "Dist::Zilla::Role::MetaProvider" => 0,
     "List::Util" => 0,
-    "Module::Metadata" => 0,
+    "Module::Metadata" => "1.000005",
     "Moose" => 0,
     "Moose::Util::TypeConstraints" => 0,
     "namespace::autoclean" => 0,
@@ -99,7 +99,7 @@ my %WriteMakefileArgs = (
     "Test::More" => 0,
     "if" => 0
   },
-  "VERSION" => "0.001",
+  "VERSION" => "0.002",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -112,7 +112,7 @@ my %FallbackPrereqs = (
   "ExtUtils::MakeMaker" => 0,
   "File::Spec" => 0,
   "List::Util" => 0,
-  "Module::Metadata" => 0,
+  "Module::Metadata" => "1.000005",
   "Moose" => 0,
   "Moose::Util::TypeConstraints" => 0,
   "Path::Tiny" => 0,
