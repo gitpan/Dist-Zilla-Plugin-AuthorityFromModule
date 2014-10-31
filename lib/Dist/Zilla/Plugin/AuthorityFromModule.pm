@@ -1,8 +1,8 @@
 use strict;
 use warnings;
 package Dist::Zilla::Plugin::AuthorityFromModule;
-# git description: v0.001-9-g4b2dcc6
-$Dist::Zilla::Plugin::AuthorityFromModule::VERSION = '0.002';
+# git description: v0.002-2-g4a5a2a7
+$Dist::Zilla::Plugin::AuthorityFromModule::VERSION = '0.003';
 # ABSTRACT: Add metadata to your distribution indicating what module to copy PAUSE permissions from
 # KEYWORDS: distribution metadata authority permissions PAUSE users
 # vim: set ts=8 sw=4 tw=78 et :
@@ -10,7 +10,7 @@ $Dist::Zilla::Plugin::AuthorityFromModule::VERSION = '0.002';
 use Moose;
 with 'Dist::Zilla::Role::MetaProvider';
 use Moose::Util::TypeConstraints 'role_type';
-use List::Util 'first';
+use List::Util 1.33 qw(first any);
 use Module::Metadata 1.000005;
 use namespace::autoclean;
 
@@ -28,7 +28,7 @@ has _module_name => (
         {
             if (my $file = first {
                     $_->name =~ m{^lib/} and $_->name =~ m{\.pm$}
-                    and $self->_package_from_file($_) eq $module }
+                    and any { $module eq $_ } $self->_packages_from_file($_) }
                 @{ $self->zilla->files })
             {
                 $self->log_debug('found \'' . $module . '\' in ' . $file->name);
@@ -41,7 +41,7 @@ has _module_name => (
         $self->log_debug('no module provided; defaulting to the main module');
 
         my $file = $self->zilla->main_module;
-        my $module = $self->_package_from_file($file);
+        my ($module) = $self->_packages_from_file($file);
         $self->log_debug('extracted package \'' . $module . '\' from ' . $file->name);
         $module;
     },
@@ -72,19 +72,19 @@ sub metadata
     };
 }
 
-sub _package_from_file
+sub _packages_from_file
 {
     my ($self, $file) = @_;
 
     # TODO: use Dist::Zilla::Role::ModuleMetadata
     my $fh;
     ($file->can('encoding')
-        ? open $fh, sprintf('<encoding(%s)', $file->encoding), \$file->encoded_content
+        ? open $fh, sprintf('<:encoding(%s)', $file->encoding), \$file->encoded_content
         : open $fh, '<', \$file->content)
             or $self->log_fatal('cannot open handle to ' . $file->name . ' content: ' . $!);
 
     my $mmd = Module::Metadata->new_from_handle($fh, $file->name);
-    first { $_ ne 'main' } $mmd->packages_inside;
+    grep { $_ ne 'main' } $mmd->packages_inside;
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -101,7 +101,7 @@ Dist::Zilla::Plugin::AuthorityFromModule - Add metadata to your distribution ind
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 SYNOPSIS
 

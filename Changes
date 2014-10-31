@@ -1,5 +1,9 @@
 Revision history for Dist-Zilla-Plugin-AuthorityFromModule
 
+0.003     2014-10-31 06:54:58Z
+          - fix case where authority module is not the first namespace in a
+            file
+
 0.002     2014-09-06 01:29:49Z
           - make one of the code paths more efficient
           - add more diagnostic messages
