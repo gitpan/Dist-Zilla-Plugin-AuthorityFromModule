@@ -1,5 +1,9 @@
 Revision history for Dist-Zilla-Plugin-AuthorityFromModule
 
+0.004     2014-11-28 18:43:48Z
+          - allow tests to pass under older Dist::Zilla by skipping testing
+            non-ascii module names there
+
 0.003     2014-10-31 06:54:58Z
           - fix case where authority module is not the first namespace in a
             file

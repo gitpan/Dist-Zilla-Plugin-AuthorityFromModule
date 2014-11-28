@@ -1,8 +1,8 @@
 use strict;
 use warnings;
 package Dist::Zilla::Plugin::AuthorityFromModule;
-# git description: v0.002-2-g4a5a2a7
-$Dist::Zilla::Plugin::AuthorityFromModule::VERSION = '0.003';
+# git description: v0.003-2-g64a4014
+$Dist::Zilla::Plugin::AuthorityFromModule::VERSION = '0.004';
 # ABSTRACT: Add metadata to your distribution indicating what module to copy PAUSE permissions from
 # KEYWORDS: distribution metadata authority permissions PAUSE users
 # vim: set ts=8 sw=4 tw=78 et :
@@ -101,7 +101,7 @@ Dist::Zilla::Plugin::AuthorityFromModule - Add metadata to your distribution ind
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 SYNOPSIS
 

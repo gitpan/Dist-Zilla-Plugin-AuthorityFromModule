@@ -9,6 +9,8 @@ use Test::Fatal;
 use Path::Tiny;
 use utf8;
 
+use Test::Requires { 'Dist::Zilla' => '5.000' };
+
 binmode $_, ':encoding(UTF-8)' foreach map { Test::Builder->new->$_ } qw(output failure_output todo_output);
 binmode STDOUT, ':encoding(UTF-8)';
 binmode STDERR, ':encoding(UTF-8)';
@@ -38,14 +40,14 @@ cmp_deeply(
     $tzil->distmeta,
     superhashof({
         x_authority_from_module => "Foo::\x{ca0}_\x{ca0}",
-        x_permissions_from_module => "Foo::\x{ca0}\x{5f}\x{ca0}",
+        x_permissions_from_module => "Foo::\x{ca0}_\x{ca0}",
         x_Dist_Zilla => superhashof({
             plugins => supersetof(
                 {
                     class => 'Dist::Zilla::Plugin::AuthorityFromModule',
                     config => {
                         'Dist::Zilla::Plugin::AuthorityFromModule' => {
-                            module => "Foo::\x{ca0}\x{5f}\x{ca0}",
+                            module => "Foo::\x{ca0}_\x{ca0}",
                         },
                     },
                     name => 'AuthorityFromModule',
